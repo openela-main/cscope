@@ -1,14 +1,20 @@
+%if !0%{?rhel} && 0%{?fedora} < 36
+%bcond_without xemacs
+%else
+%bcond_with xemacs
+%endif
+
 Summary: C source code tree search and browse tool
 Name: cscope
 Version: 15.9
-Release: 17%{?dist}
+Release: 26%{?dist}
 Source0: https://downloads.sourceforge.net/project/%{name}/%{name}/v%{version}/%{name}-%{version}.tar.gz
 URL: http://cscope.sourceforge.net
-License: BSD and GPLv2+
+License: BSD-3-Clause AND GPL-2.0-or-later
 BuildRequires: pkgconf-pkg-config ncurses-devel gcc flex bison m4
 BuildRequires: autoconf automake make
 Requires: emacs-filesystem coreutils ed
-%if !0%{?rhel} && 0%{?fedora} < 36
+%if %{with xemacs}
 Requires: xemacs-filesystem
 %endif
 
@@ -29,9 +35,10 @@ Patch11: dist-1-coverity-fixes.patch
 Patch12: dist-2-cscope-indexer-help.patch
 Patch13: dist-3-add-selftests.patch
 Patch14: dist-4-fix-printf.patch
+Patch15: dist-5-fix-signal-handler.patch
 
 %define cscope_share_path %{_datadir}/cscope
-%if !0%{?rhel} && 0%{?fedora} < 36
+%if %{with xemacs}
 %define xemacs_lisp_path %{_datadir}/xemacs/site-packages/lisp
 %else
 %define xemacs_lisp_path %nil
@@ -83,7 +90,7 @@ make check
 %dir /var/lib/cs
 %doc AUTHORS COPYING ChangeLog README TODO contrib/cctree.txt
 
-%if !0%{?rhel} && 0%{?fedora} < 36
+%if %{with xemacs}
 %triggerin -- xemacs
 ln -sf %{cscope_share_path}/xcscope.el %{xemacs_lisp_path}/xcscope.el
 %endif
@@ -94,7 +101,7 @@ ln -sf %{cscope_share_path}/xcscope.el %{emacs_lisp_path}/xcscope.el
 %triggerin -- vim-filesystem
 ln -sf %{cscope_share_path}/cctree.vim %{vim_plugin_path}/cctree.vim
 
-%if !0%{?rhel} && 0%{?fedora} < 36
+%if %{with xemacs}
 %triggerun -- xemacs
 [ $2 -gt 0 ] && exit 0
 rm -f %{xemacs_lisp_path}/xcscope.el
@@ -109,6 +116,12 @@ rm -f %{emacs_lisp_path}/xcscope.el
 rm -f %{vim_plugin_path}/cctree.vim
 
 %changelog
+* Thu Oct 31 2024 Vladis Dronov <vdronov@redhat.com> - 15.9-26
+- Update cscope to 15.9-26 from Fedora (RHEL-65465)
+- Fix signal handling at exit
+- Minor edits in the rpm scripts and the changelog
+- Make xemacs a bcond
+
 * Thu Sep 29 2022 Vladis Dronov <vdronov@redhat.com> - 15.9-17
 - Update to the upstream git @ 7f2369ac (bz 2129890)
 
@@ -223,7 +236,7 @@ rm -f %{vim_plugin_path}/cctree.vim
 - Update to latest upstream
 
 * Mon Mar 12 2012 Neil Horman <nhorman@redhat.com> -15.7a-10
-- Fixed a segfault in invlib construction ( bz 786523)
+- Fixed a segfault in invlib construction (bz 786523)
 
 * Mon Mar 05 2012 Neil Horman <nhorman@redhat.com> 15.7a-9
 - Fixed a segfault in the symbol assignment search (bz 799643)
@@ -232,7 +245,7 @@ rm -f %{vim_plugin_path}/cctree.vim
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
 
 * Thu Jun 30 2011 Neil Horman <nhorman@redhat.com> - 15.7a-7
-- Added LEXERR token to catch bad parsing before we crash (bz717545)
+- Added LEXERR token to catch bad parsing before we crash (bz 717545)
 
 * Fri Jun 24 2011 Neil Horman <nhorman@redhat.com> - 15.7a-6
 - Fixed licensing for xcscope.el (bz 715898)
@@ -291,7 +304,7 @@ rm -f %{vim_plugin_path}/cctree.vim
 - Fix putstring overflow (bz 189666)
 
 * Fri May 5  2006 Neil Horman <nhorman@redhat.com>
-- Adding fix to put SYSDIR in right location (bz190580)
+- Adding fix to put SYSDIR in right location (bz 190580)
 
 * Fri Apr 21 2006 Neil Horman <nhorman@redhat.com> - 15.5-13.4
 - adding inverted index overflow patch
@@ -336,7 +349,7 @@ rm -f %{vim_plugin_path}/cctree.vim
 - Added upstream ocs fix
 - Added feature to find symbol assignments
 - Changed default SYSDIR directory to /var/lib/cs
-- Incoproated M. Schwendt's fix for ocs -s
+- Incorporated M. Schwendt's fix for ocs -s
 
 * Fri Jun 18 2004 Neil Horman <nhorman@redhat.com>
 - built the package
