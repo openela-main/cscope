@@ -7,7 +7,7 @@
 Summary: C source code tree search and browse tool
 Name: cscope
 Version: 15.9
-Release: 26%{?dist}
+Release: 32%{?dist}
 Source0: https://downloads.sourceforge.net/project/%{name}/%{name}/v%{version}/%{name}-%{version}.tar.gz
 URL: http://cscope.sourceforge.net
 License: BSD-3-Clause AND GPL-2.0-or-later
@@ -36,6 +36,8 @@ Patch12: dist-2-cscope-indexer-help.patch
 Patch13: dist-3-add-selftests.patch
 Patch14: dist-4-fix-printf.patch
 Patch15: dist-5-fix-signal-handler.patch
+Patch16: dist-6-fix-brace-count.patch
+Patch17: dist-7-add-new-keywords.patch
 
 %define cscope_share_path %{_datadir}/cscope
 %if %{with xemacs}
@@ -116,6 +118,14 @@ rm -f %{emacs_lisp_path}/xcscope.el
 rm -f %{vim_plugin_path}/cctree.vim
 
 %changelog
+* Tue Mar 31 2026 Veronika Kabatova <vkabatov@redhat.com> - 15.9-32
+- Rebuild to fix missing binaries due to buildsystem oversight
+
+* Wed Mar 25 2026 Vladislav Dronov <vdronov@redhat.com> - 15.9-31
+- Add two latest distribution patches (RHEL-158208)
+- Correct the erroneous brace count caused by the unbalanced { }
+- Make it possible to add the new keywords
+
 * Thu Oct 31 2024 Vladis Dronov <vdronov@redhat.com> - 15.9-26
 - Update cscope to 15.9-26 from Fedora (RHEL-65465)
 - Fix signal handling at exit
